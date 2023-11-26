@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/setting_fragment"
+        android:title="Setting"
+        android:icon="@drawable/setting_icon"/>
+    <item
+        android:id="@+id/user_fragment"
+        android:title="User"
+        android:icon="@drawable/user_icon"/>
+    <item
+        android:id="@+id/studen_fragment"
+        android:title="Student"
+        android:icon="@drawable/student_icon"/>
+</menu>

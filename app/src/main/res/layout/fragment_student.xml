@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StudentFeature.StudentFragment">
+
+    <LinearLayout
+        android:id="@+id/filterLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/border"
+            android:focusable="false"
+            app:closeIcon="@drawable/baseline_clear_24"
+            app:iconifiedByDefault="false"
+            app:queryHint="Search..."
+            app:searchHintIcon="@null"
+            app:searchIcon="@drawable/baseline_search_24" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="Sort By:"
+                android:textSize="28sp" />
+
+            <Spinner
+                android:id="@+id/spinnerSort"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp" />
+        </LinearLayout>
+    </LinearLayout>
+    <!-- TODO: Update blank fragment layout -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvStudentList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/filterLayout"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="65dp"
+        android:scrollbars="vertical" />
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="100dp"
+        app:menu_colorNormal="@color/white"
+        app:menu_colorPressed="@color/white"
+        app:menu_fab_size="normal"
+        app:menu_icon="@drawable/baseline_format_list_bulleted_24"
+        app:menu_openDirection="up"
+        app:menu_showShadow="true">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fabScanStudentCSV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            android:src="@drawable/baseline_document_scanner_24"
+            app:fabSize="mini"
+            app:fab_colorNormal="@color/white"
+            app:fab_colorPressed="#A9A9A9"
+            app:fab_showShadow="true"
+            app:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fabAddStudent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            android:src="@drawable/baseline_add_24"
+            app:fab_colorNormal="@color/white"
+            app:fab_colorPressed="#A9A9A9"
+            app:fab_showShadow="true"
+            app:fab_size="mini"
+            app:fabSize="mini"
+            />
+    </com.github.clans.fab.FloatingActionMenu>
+
+</RelativeLayout>
