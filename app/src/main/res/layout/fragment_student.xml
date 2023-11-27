@@ -72,13 +72,25 @@
         app:menu_icon="@drawable/baseline_format_list_bulleted_24"
         app:menu_openDirection="up"
         app:menu_showShadow="true">
-
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fabScanStudentCSV"
+            android:id="@+id/fabImportStudentCSV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:scaleType="center"
             android:src="@drawable/baseline_document_scanner_24"
+            app:fab_colorNormal="@color/white"
+            app:fab_colorPressed="#A9A9A9"
+            app:fab_showShadow="true"
+            app:fab_size="mini"
+            app:fabSize="mini"
+            />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fabExportStudentCSV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            android:src="@drawable/baseline_insert_drive_file_24"
             app:fabSize="mini"
             app:fab_colorNormal="@color/white"
             app:fab_colorPressed="#A9A9A9"

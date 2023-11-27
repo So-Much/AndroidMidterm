@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,9 +14,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidMidterm"
         tools:targetApi="31">
-        <activity
-            android:name=".StudentFeature.Certificate.PostCertificateActivity"
-            android:exported="false" />
         <activity
             android:name=".StudentFeature.StudentDetailActivity"
             android:exported="false" />

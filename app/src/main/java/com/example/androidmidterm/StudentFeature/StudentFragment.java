@@ -1,6 +1,9 @@
 package com.example.androidmidterm.StudentFeature;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,15 +11,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.androidmidterm.FileManagement.ExportCSV;
+import com.example.androidmidterm.FileManagement.ImportCSV;
 import com.example.androidmidterm.R;
 import com.example.androidmidterm.UserFeature.UserModel;
 import com.github.clans.fab.FloatingActionButton;
@@ -32,15 +41,18 @@ public class StudentFragment extends Fragment {
     private static final String TAG = "StudentFragment";
     UserModel currentUser;
     FloatingActionButton fabAddStudent;
-    FloatingActionButton fabScanStudentCSV;
+    FloatingActionButton fabImportStudentCSV, fabExportStudentCSV;
     SearchView searchView;
     Spinner spinnerSort;
     ArrayList<StudentModel> students = new ArrayList<>();
     AdapterStudentList adapterStudentList;
     RecyclerView rvStudentList;
+    ImportCSV importCSV;
+    ExportCSV exportCSV;
+    ActivityResultLauncher<Intent> filePickerLauncher, folderPickerLauncher;
     private ListenerRegistration listenerRegistration;
     View view;
-    private String[] sortOptions = {"Select Once","Student Name (A-Z)", "Student Name (Z-A)", "Student GPA(low to high)", "Student GPA(high to low)"};
+    private String[] sortOptions = {"Select Once", "Student Name (A-Z)", "Student Name (Z-A)", "Student GPA(low to high)", "Student GPA(high to low)"};
 
     public StudentFragment() {
         // Required empty public constructor
@@ -69,13 +81,78 @@ public class StudentFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_student, container, false);
 
         fabAddStudent = view.findViewById(R.id.fabAddStudent);
-        fabScanStudentCSV = view.findViewById(R.id.fabScanStudentCSV);
+        fabImportStudentCSV = view.findViewById(R.id.fabImportStudentCSV);
+        fabExportStudentCSV = view.findViewById(R.id.fabExportStudentCSV);
         rvStudentList = view.findViewById(R.id.rvStudentList);
         searchView = view.findViewById(R.id.searchView);
         spinnerSort = view.findViewById(R.id.spinnerSort);
+        exportCSV = new ExportCSV(view.getContext());
+        importCSV = new ImportCSV(view.getContext());
+
 
         rvStudentList.setLayoutManager(new LinearLayoutManager(view.getContext()));
         adapterStudentList = new AdapterStudentList(view.getContext(), students);
+
+        filePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                resultFile -> {
+                    if (resultFile.getResultCode() == getActivity().RESULT_OK) {
+                        Uri src = resultFile.getData().getData();
+                        importCSV.importStudents(src, new ImportCSV.ImportStudentListener() {
+                            @Override
+                            public void onImportStudentSuccess(ArrayList<StudentModel> studentImported) {
+                                students.addAll(studentImported);
+                                adapterStudentList.notifyDataSetChanged();
+                                Toast.makeText(view.getContext(), "Import CSV Success", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onImportStudentFailure() {
+                                Toast.makeText(view.getContext(), "Import CSV Failure", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+        );
+        folderPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == getActivity().RESULT_OK) {
+                        Uri src = result.getData().getData();
+                        EditText editText = new EditText(view.getContext());
+                        new AlertDialog.Builder(view.getContext())
+                                .setTitle("Export CSV")
+                                .setMessage("File name:")
+                                .setView(editText)
+                                .setPositiveButton("Export", (dialogInterface, i) -> {
+                                    String filename = editText.getText().toString().trim();
+                                    if (filename.isEmpty()) {
+                                        editText.setError("Please enter filename");
+                                    } else {
+                                        editText.setError(null);
+                                        if (!filename.endsWith(".csv")) {
+                                            filename += ".csv";
+                                        }
+                                        DocumentFile pickedDir = DocumentFile.fromTreeUri(view.getContext(), src);
+                                        DocumentFile newFile = pickedDir.createFile("text/csv", filename);
+                                        exportCSV.exportStudents(students, newFile, new ExportCSV.ExportCSVListener() {
+                                            @Override
+                                            public void onExportCSVSuccess() {
+                                                Toast.makeText(view.getContext(), "Export CSV Success", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                            @Override
+                                            public void onExportCSVFailure() {
+                                                Toast.makeText(view.getContext(), "Export CSV Failure", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                })
+                                .setNegativeButton("No", null)
+                                .show();
+                    }
+                }
+        );
 
 
         fabAddStudent.setOnClickListener(new View.OnClickListener() {
@@ -86,13 +163,29 @@ public class StudentFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        fabScanStudentCSV.setOnClickListener(new View.OnClickListener() {
+//        Import
+        fabImportStudentCSV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent filePicker = new Intent(Intent.ACTION_GET_CONTENT);
+                filePicker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                filePicker.setType("*/*");
+                filePicker = Intent.createChooser(filePicker, "Select a file");
+                filePickerLauncher.launch(filePicker);
             }
         });
-
+//        Export
+        fabExportStudentCSV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Intent folderPicker = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    folderPicker.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    folderPicker.addCategory(Intent.CATEGORY_DEFAULT);
+                    folderPickerLauncher.launch(Intent.createChooser(folderPicker, "Select a folder"));
+                }
+            }
+        });
         listenerRegistration = FirebaseFirestore.getInstance()
                 .collection("Students")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -171,5 +264,6 @@ public class StudentFragment extends Fragment {
         }
         adapterStudentList.filterList(filteredList);
     }
+
 
 }

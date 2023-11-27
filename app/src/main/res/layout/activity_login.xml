@@ -32,6 +32,7 @@
             android:layout_margin="5dp"
             android:layout_marginVertical="40dp"
             android:hint="Email"
+            android:text="minhnhieu@gmail.com"
             android:inputType="textEmailAddress"
             android:paddingStart="14dp"
             android:textSize="18sp" />
@@ -43,6 +44,7 @@
             android:layout_margin="5dp"
             android:hint="Password"
             android:inputType="textPassword"
+            android:text="123456"
             android:paddingStart="14dp"
             android:textSize="18sp" />
 
