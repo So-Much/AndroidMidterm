@@ -52,15 +52,9 @@ public class ImportCSV {
                 StudentModel student = new StudentModel(studentName, studentID, studentGPA);
                 students.add(student);
             }
-            FirebaseFirestore.getInstance()
-                    .collection("Students")
-                    .add(students)
-                    .addOnSuccessListener(documentReference -> {
-                        Log.e(TAG, "importStudents: Successful" );
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "importStudents: " + e.getMessage());
-                    });
+            for (StudentModel student : students) {
+                importStudent(student);
+            }
             reader.close();
             importCSVListener.onImportStudentSuccess(students);
         } catch (Exception e) {
@@ -101,5 +95,18 @@ public class ImportCSV {
         void onImportCertificateSuccess(ArrayList<CertificateModel> certificates);
 
         void onImportCertificateFailure();
+    }
+
+    private void importStudent(StudentModel student) {
+        FirebaseFirestore.getInstance()
+                .collection("Students")
+                .document(student.getStudentNumber())
+                .set(student)
+                .addOnSuccessListener(documentReference -> {
+                    Log.e(TAG, "importStudents: Successful" );
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "importStudents: " + e.getMessage());
+                });
     }
 }

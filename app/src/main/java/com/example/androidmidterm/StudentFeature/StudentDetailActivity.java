@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -168,11 +171,21 @@ public class StudentDetailActivity extends AppCompatActivity {
                 });
         btnImportCertificateCSV.setOnClickListener(
                 view -> {
-                    Intent filePicker = new Intent(Intent.ACTION_GET_CONTENT);
-                    filePicker.addCategory(Intent.CATEGORY_OPENABLE);
-                    filePicker.setType("text/csv");
-                    filePicker = Intent.createChooser(filePicker, "Select a file");
-                    filePickerLauncher.launch(filePicker);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        if (!Environment.isExternalStorageManager()) {
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                            startActivity(intent);
+                        } else {
+                            Log.e(TAG, "onCreate: Permission is granted!");
+                            Intent filePicker = new Intent(Intent.ACTION_GET_CONTENT);
+                            filePicker.addCategory(Intent.CATEGORY_OPENABLE);
+                            filePicker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            filePicker.setType("*/*");
+                            filePicker = Intent.createChooser(filePicker, "Select a file");
+                            filePickerLauncher.launch(filePicker);
+                        }
+                    }
+                    Log.e(TAG, "onCreate: something went wrong!");
                 }
         );
         btnExportCertificateCSV.setOnClickListener(

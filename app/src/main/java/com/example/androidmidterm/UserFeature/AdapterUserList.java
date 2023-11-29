@@ -77,12 +77,13 @@ public class AdapterUserList extends RecyclerView.Adapter<AdapterUserList.ViewHo
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             progressDialog.show();
-                                            FirebaseFirestore.getInstance().collection("Users")
-                                                    .document(mUserList.get(position).getUserID())
+                                            String id = mUserList.get(position).getUserID();
+                                            mUserList.remove(position);
+                                            FirebaseFirestore.getInstance()
+                                                    .collection("Users")
+                                                    .document(id)
                                                     .delete()
                                                     .addOnSuccessListener(aVoid -> {
-                                                        mUserList.remove(position);
-                                                        notifyDataSetChanged();
                                                         progressDialog.dismiss();
                                                     })
                                                     .addOnFailureListener(e -> {

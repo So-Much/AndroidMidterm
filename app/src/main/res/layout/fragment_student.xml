@@ -26,6 +26,18 @@
             app:queryHint="Search..."
             app:searchHintIcon="@null"
             app:searchIcon="@drawable/baseline_search_24" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnMultipleSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Multiple Search"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/border"
+            android:backgroundTint="#aaaaaa"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"

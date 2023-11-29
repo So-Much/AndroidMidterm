@@ -1,6 +1,7 @@
 package com.example.androidmidterm.StudentFeature;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.SearchView;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
@@ -42,6 +44,7 @@ public class StudentFragment extends Fragment {
     UserModel currentUser;
     FloatingActionButton fabAddStudent;
     FloatingActionButton fabImportStudentCSV, fabExportStudentCSV;
+    AppCompatButton btnMultipleSearch;
     SearchView searchView;
     Spinner spinnerSort;
     ArrayList<StudentModel> students = new ArrayList<>();
@@ -86,6 +89,7 @@ public class StudentFragment extends Fragment {
         rvStudentList = view.findViewById(R.id.rvStudentList);
         searchView = view.findViewById(R.id.searchView);
         spinnerSort = view.findViewById(R.id.spinnerSort);
+        btnMultipleSearch = view.findViewById(R.id.btnMultipleSearch);
         exportCSV = new ExportCSV(view.getContext());
         importCSV = new ImportCSV(view.getContext());
 
@@ -216,15 +220,46 @@ public class StudentFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                searchForMultipleProperties(newText);
+                search(newText);
                 return false;
             }
         });
 
+
         ArrayAdapter<CharSequence> sortAdapter = new ArrayAdapter<CharSequence>(view.getContext(), android.R.layout.simple_spinner_item, sortOptions);
         sortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerSort.setAdapter(sortAdapter);
+        btnMultipleSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(view.getContext())
+                        .setTitle("Multiple Search")
+                        .setView(R.layout.multiple_search_view)
+                        .setPositiveButton("Search", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                EditText etStudentNumber = ((AlertDialog) dialogInterface).findViewById(R.id.etStudentNumber);
+                                EditText etStudentName = ((AlertDialog) dialogInterface).findViewById(R.id.etStudentName);
+                                EditText etFromGPA = ((AlertDialog) dialogInterface).findViewById(R.id.etFromGPA);
+                                EditText etToGPA = ((AlertDialog) dialogInterface).findViewById(R.id.etToGPA);
 
+                                String studentNumber = etStudentNumber.getText().toString().trim().isEmpty() ? "" : etStudentNumber.getText().toString().trim();
+                                String studentName = etStudentName.getText().toString().trim().isEmpty() ? "" : etStudentName.getText().toString().trim();
+                                double fromGPA = 0;
+                                double toGPA = 0;
+                                try {
+                                    fromGPA = etFromGPA.getText().toString().trim().isEmpty() ? 0 : Double.parseDouble(etFromGPA.getText().toString().trim());
+                                    toGPA = etToGPA.getText().toString().trim().isEmpty() ? 10 : Double.parseDouble(etToGPA.getText().toString().trim());
+                                } catch (Exception e) {
+                                    Toast.makeText(view.getContext(), "Please enter valid GPA", Toast.LENGTH_SHORT).show();
+                                }
+                                searchMultiple(studentNumber, studentName, fromGPA, toGPA);
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
         spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -251,7 +286,7 @@ public class StudentFragment extends Fragment {
         return view;
     }
 
-    private void searchForMultipleProperties(String newText) {
+    private void search(String newText) {
         ArrayList<StudentModel> filteredList = new ArrayList<>();
         for (StudentModel student : students) {
             if (student.getStudentName().toLowerCase().contains(newText.toLowerCase())) {
@@ -264,6 +299,13 @@ public class StudentFragment extends Fragment {
         }
         adapterStudentList.filterList(filteredList);
     }
-
-
+    public void searchMultiple(String studentNumber, String studentName, double fromGPA, double toGPA) {
+        ArrayList<StudentModel> filteredList = new ArrayList<>();
+        for (StudentModel student : students) {
+            if (student.getStudentNumber().contains(studentNumber) && student.getStudentName().toLowerCase().contains(studentName.toLowerCase()) && student.getStudentGPA() >= fromGPA && student.getStudentGPA() <= toGPA) {
+                filteredList.add(student);
+            }
+        }
+        adapterStudentList.filterList(filteredList);
+    }
 }
