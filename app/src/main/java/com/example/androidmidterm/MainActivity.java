@@ -75,7 +75,8 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     } else if (item.getItemId() == R.id.studen_fragment
                             && (currentUser.getUserRole().equals(USER_ROLE.MANAGER)
-                            || currentUser.getUserRole().equals(USER_ROLE.ADMIN))) {
+                            || currentUser.getUserRole().equals(USER_ROLE.ADMIN)
+                            || currentUser.getUserRole().equals(USER_ROLE.EMPLOYEE))) {
                         replaceFragment(new StudentFragment(currentUser));
                         return true;
                     } else if (item.getItemId() == R.id.setting_fragment) {

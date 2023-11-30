@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.androidmidterm.FileManagement.ExportCSV;
 import com.example.androidmidterm.FileManagement.ImportCSV;
 import com.example.androidmidterm.R;
+import com.example.androidmidterm.UserFeature.USER_ROLE;
 import com.example.androidmidterm.UserFeature.UserModel;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.firestore.EventListener;
@@ -95,9 +97,18 @@ public class StudentFragment extends Fragment {
         exportCSV = new ExportCSV(view.getContext());
         importCSV = new ImportCSV(view.getContext());
 
+        ActivityResultLauncher<Intent> addActivityResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == getActivity().RESULT_OK) {
+                        adapterStudentList.notifyDataSetChanged();
+                    }
+                }
+        );
+
 
         rvStudentList.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        adapterStudentList = new AdapterStudentList(view.getContext(), students);
+        adapterStudentList = new AdapterStudentList(view.getContext(), students, currentUser);
 
         filePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -164,25 +175,34 @@ public class StudentFragment extends Fragment {
         fabAddStudent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), PostStudentActivity.class);
-                intent.setData(null);
-                startActivity(intent);
+                if (currentUser.getUserRole().equals(USER_ROLE.EMPLOYEE)) {
+                    Toast.makeText(view.getContext(), "You don't have permission to access this feature", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Intent intent = new Intent(view.getContext(), PostStudentActivity.class);
+                    intent.setData(null);
+                    startActivity(intent);
+                }
             }
         });
 //        Import
         fabImportStudentCSV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (!Environment.isExternalStorageManager()) {
-                        Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                        startActivity(intent);
-                    } else {
-                        Intent filePicker = new Intent(Intent.ACTION_GET_CONTENT);
-                        filePicker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        filePicker.setType("*/*");
-                        filePicker = Intent.createChooser(filePicker, "Select a file");
-                        filePickerLauncher.launch(filePicker);
+                if (currentUser.getUserRole().equals(USER_ROLE.EMPLOYEE)) {
+                    Toast.makeText(view.getContext(), "You don't have permission to access this feature", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        if (!Environment.isExternalStorageManager()) {
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                            startActivity(intent);
+                        } else {
+                            Intent filePicker = new Intent(Intent.ACTION_GET_CONTENT);
+                            filePicker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            filePicker.setType("*/*");
+                            filePicker = Intent.createChooser(filePicker, "Select a file");
+                            filePickerLauncher.launch(filePicker);
+                        }
                     }
                 }
             }
@@ -191,11 +211,15 @@ public class StudentFragment extends Fragment {
         fabExportStudentCSV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    Intent folderPicker = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                    folderPicker.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    folderPicker.addCategory(Intent.CATEGORY_DEFAULT);
-                    folderPickerLauncher.launch(Intent.createChooser(folderPicker, "Select a folder"));
+                if (currentUser.getUserRole().equals(USER_ROLE.EMPLOYEE)) {
+                    Toast.makeText(view.getContext(), "You don't have permission to access this feature", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        Intent folderPicker = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                        folderPicker.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        folderPicker.addCategory(Intent.CATEGORY_DEFAULT);
+                        folderPickerLauncher.launch(Intent.createChooser(folderPicker, "Select a folder"));
+                    }
                 }
             }
         });

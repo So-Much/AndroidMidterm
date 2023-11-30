@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.androidmidterm.R;
 import com.example.androidmidterm.UserFeature.LoginHistory.ShowLoginHistoryActivity;
+import com.example.androidmidterm.UserFeature.UserModel;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -26,13 +27,15 @@ import java.util.ArrayList;
 public class AdapterStudentList extends RecyclerView.Adapter<AdapterStudentList.ViewHolder> {
     Context mContext;
     ArrayList<StudentModel> mStudentList;
+    UserModel mUserModel;
 
     public AdapterStudentList() {
     }
 
-    public AdapterStudentList(Context mContext, ArrayList<StudentModel> mStudentList) {
+    public AdapterStudentList(Context mContext, ArrayList<StudentModel> mStudentList, UserModel mUserModel) {
         this.mContext = mContext;
         this.mStudentList = mStudentList;
+        this.mUserModel = mUserModel;
     }
 
     @NonNull
@@ -54,6 +57,7 @@ public class AdapterStudentList extends RecyclerView.Adapter<AdapterStudentList.
                 intent.putExtra("studentName", mStudentList.get(position).getStudentName());
                 intent.putExtra("studentNumber", mStudentList.get(position).getStudentNumber());
                 intent.putExtra("studentGPA", mStudentList.get(position).getStudentGPA());
+                intent.putExtra("userRole", mUserModel.getUserRole().toString());
                 mContext.startActivity(intent);
             }
         });

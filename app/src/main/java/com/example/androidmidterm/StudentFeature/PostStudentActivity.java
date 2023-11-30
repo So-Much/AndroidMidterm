@@ -91,6 +91,8 @@ public class PostStudentActivity extends AppCompatActivity {
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
                                         Toast.makeText(PostStudentActivity.this, "Student updated successfully", Toast.LENGTH_SHORT).show();
+                                        Intent getIntent = getIntent();
+                                        setResult(RESULT_OK, getIntent);
                                         finish();
                                     } else {
                                         Toast.makeText(PostStudentActivity.this, "Student update failed", Toast.LENGTH_SHORT).show();

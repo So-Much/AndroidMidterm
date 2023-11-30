@@ -25,6 +25,7 @@ import com.example.androidmidterm.FileManagement.ImportCSV;
 import com.example.androidmidterm.R;
 import com.example.androidmidterm.StudentFeature.Certificate.AdapterCertificateList;
 import com.example.androidmidterm.StudentFeature.Certificate.CertificateModel;
+import com.example.androidmidterm.UserFeature.USER_ROLE;
 import com.example.androidmidterm.Utils.FireStoreAction;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -43,6 +44,7 @@ public class StudentDetailActivity extends AppCompatActivity {
     EditText etCertificateName, etIssuedDay, etIssuedMonth, etIssuedYear, etExpiredDay, etExpiredMonth, etExpiredYear;
     ImportCSV importCSV;
     ExportCSV exportCSV;
+    String userRole;
     ActivityResultLauncher<Intent> filePickerLauncher, folderPickerLauncher;
 
     @Override
@@ -65,6 +67,7 @@ public class StudentDetailActivity extends AppCompatActivity {
         tvStudentName.setText(dataGot.getStringExtra("studentName"));
         tvStudentNumber.setText(dataGot.getStringExtra("studentNumber"));
         tvStudentGPA.setText("" + dataGot.getDoubleExtra("studentGPA", 0));
+        userRole = dataGot.getStringExtra("userRole");
 
         filePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -123,66 +126,74 @@ public class StudentDetailActivity extends AppCompatActivity {
 
         btnAddCertificate.setOnClickListener(
                 v -> {
-                    new AlertDialog.Builder(this)
-                            .setView(R.layout.dialog_add_certificate)
-                            .setPositiveButton("Yes", (dialog, which) -> {
+                    if (userRole.equals(USER_ROLE.EMPLOYEE.toString())) {
+                        Toast.makeText(this, "You don't have permission to add certificate!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        new AlertDialog.Builder(this)
+                                .setView(R.layout.dialog_add_certificate)
+                                .setPositiveButton("Yes", (dialog, which) -> {
 //                                add certificate
-                                etCertificateName = ((AlertDialog) dialog).findViewById(R.id.etCertificateName);
-                                etIssuedDay = ((AlertDialog) dialog).findViewById(R.id.etIssuedDay);
-                                etIssuedMonth = ((AlertDialog) dialog).findViewById(R.id.etIssuedMonth);
-                                etIssuedYear = ((AlertDialog) dialog).findViewById(R.id.etIssuedYear);
-                                etExpiredDay = ((AlertDialog) dialog).findViewById(R.id.etExpiredDay);
-                                etExpiredMonth = ((AlertDialog) dialog).findViewById(R.id.etExpiredMonth);
-                                etExpiredYear = ((AlertDialog) dialog).findViewById(R.id.etExpiredYear);
+                                    etCertificateName = ((AlertDialog) dialog).findViewById(R.id.etCertificateName);
+                                    etIssuedDay = ((AlertDialog) dialog).findViewById(R.id.etIssuedDay);
+                                    etIssuedMonth = ((AlertDialog) dialog).findViewById(R.id.etIssuedMonth);
+                                    etIssuedYear = ((AlertDialog) dialog).findViewById(R.id.etIssuedYear);
+                                    etExpiredDay = ((AlertDialog) dialog).findViewById(R.id.etExpiredDay);
+                                    etExpiredMonth = ((AlertDialog) dialog).findViewById(R.id.etExpiredMonth);
+                                    etExpiredYear = ((AlertDialog) dialog).findViewById(R.id.etExpiredYear);
 //                                validate
-                                if (etCertificateName.getText().toString().isEmpty()
-                                        || etIssuedDay.getText().toString().isEmpty()
-                                        || etIssuedMonth.getText().toString().isEmpty()
-                                        || etIssuedYear.getText().toString().isEmpty()
-                                        || etExpiredDay.getText().toString().isEmpty()
-                                        || etExpiredMonth.getText().toString().isEmpty()
-                                        || etExpiredYear.getText().toString().isEmpty()) {
-                                    Toast.makeText(this, "Not enough information!", Toast.LENGTH_SHORT).show();
-                                    Toast.makeText(this, "Please fill all the fields and retry!", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-                                if (Integer.parseInt(etIssuedDay.getText().toString()) > 31
-                                        || Integer.parseInt(etIssuedMonth.getText().toString()) > 12
-                                        || Integer.parseInt(etIssuedYear.getText().toString()) > 2023
-                                        || Integer.parseInt(etExpiredDay.getText().toString()) > 31
-                                        || Integer.parseInt(etExpiredMonth.getText().toString()) > 12
-                                        || Integer.parseInt(etExpiredYear.getText().toString()) > 2023) {
-                                    Toast.makeText(this, "Invalid date!", Toast.LENGTH_SHORT).show();
-                                    Toast.makeText(this, "Please fill all the fields and retry!", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
+                                    if (etCertificateName.getText().toString().isEmpty()
+                                            || etIssuedDay.getText().toString().isEmpty()
+                                            || etIssuedMonth.getText().toString().isEmpty()
+                                            || etIssuedYear.getText().toString().isEmpty()
+                                            || etExpiredDay.getText().toString().isEmpty()
+                                            || etExpiredMonth.getText().toString().isEmpty()
+                                            || etExpiredYear.getText().toString().isEmpty()) {
+                                        Toast.makeText(this, "Not enough information!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(this, "Please fill all the fields and retry!", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                    if (Integer.parseInt(etIssuedDay.getText().toString()) > 31
+                                            || Integer.parseInt(etIssuedMonth.getText().toString()) > 12
+                                            || Integer.parseInt(etIssuedYear.getText().toString()) > 2023
+                                            || Integer.parseInt(etExpiredDay.getText().toString()) > 31
+                                            || Integer.parseInt(etExpiredMonth.getText().toString()) > 12
+                                            || Integer.parseInt(etExpiredYear.getText().toString()) > 2023) {
+                                        Toast.makeText(this, "Invalid date!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(this, "Please fill all the fields and retry!", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
 
-                                String certificateName = etCertificateName.getText().toString();
-                                String certificateDateIssued = etIssuedDay.getText().toString() + "/" + etIssuedMonth.getText().toString() + "/" + etIssuedYear.getText().toString();
-                                String certificateDateExpired = etExpiredDay.getText().toString() + "/" + etExpiredMonth.getText().toString() + "/" + etExpiredYear.getText().toString();
+                                    String certificateName = etCertificateName.getText().toString();
+                                    String certificateDateIssued = etIssuedDay.getText().toString() + "/" + etIssuedMonth.getText().toString() + "/" + etIssuedYear.getText().toString();
+                                    String certificateDateExpired = etExpiredDay.getText().toString() + "/" + etExpiredMonth.getText().toString() + "/" + etExpiredYear.getText().toString();
 
-                                String StudentID = getIntent().getStringExtra("studentNumber");
+                                    String StudentID = getIntent().getStringExtra("studentNumber");
 
-                                fireStoreAction.addCertificate(StudentID, certificateName, certificateDateIssued, certificateDateExpired);
+                                    fireStoreAction.addCertificate(StudentID, certificateName, certificateDateIssued, certificateDateExpired);
 
-                            })
-                            .setNegativeButton("No", null)
-                            .show();
+                                })
+                                .setNegativeButton("No", null)
+                                .show();
+                    }
                 });
         btnImportCertificateCSV.setOnClickListener(
                 view -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        if (!Environment.isExternalStorageManager()) {
-                            Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                            startActivity(intent);
-                        } else {
-                            Log.e(TAG, "onCreate: Permission is granted!");
-                            Intent filePicker = new Intent(Intent.ACTION_GET_CONTENT);
-                            filePicker.addCategory(Intent.CATEGORY_OPENABLE);
-                            filePicker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                            filePicker.setType("*/*");
-                            filePicker = Intent.createChooser(filePicker, "Select a file");
-                            filePickerLauncher.launch(filePicker);
+                    if (userRole.equals(USER_ROLE.EMPLOYEE.toString())) {
+                        Toast.makeText(this, "You don't have permission to import certificate!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            if (!Environment.isExternalStorageManager()) {
+                                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                                startActivity(intent);
+                            } else {
+                                Log.e(TAG, "onCreate: Permission is granted!");
+                                Intent filePicker = new Intent(Intent.ACTION_GET_CONTENT);
+                                filePicker.addCategory(Intent.CATEGORY_OPENABLE);
+                                filePicker.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                                filePicker.setType("*/*");
+                                filePicker = Intent.createChooser(filePicker, "Select a file");
+                                filePickerLauncher.launch(filePicker);
+                            }
                         }
                     }
                     Log.e(TAG, "onCreate: something went wrong!");
@@ -190,11 +201,19 @@ public class StudentDetailActivity extends AppCompatActivity {
         );
         btnExportCertificateCSV.setOnClickListener(
                 view -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        Intent folderPicker = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                        folderPicker.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        folderPicker.addCategory(Intent.CATEGORY_DEFAULT);
-                        folderPickerLauncher.launch(Intent.createChooser(folderPicker, "Select a folder"));
+                    if (userRole.equals(USER_ROLE.EMPLOYEE.toString())) {
+                        Toast.makeText(this, "You don't have permission to export certificate!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (userRole.equals(USER_ROLE.EMPLOYEE.toString())) {
+                            Toast.makeText(this, "You don't have permission to export certificate!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                Intent folderPicker = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                                folderPicker.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                folderPicker.addCategory(Intent.CATEGORY_DEFAULT);
+                                folderPickerLauncher.launch(Intent.createChooser(folderPicker, "Select a folder"));
+                            }
+                        }
                     }
                 }
         );
