@@ -255,13 +255,15 @@ public class StudentFragment extends Fragment {
                                 String studentNumber = etStudentNumber.getText().toString().trim().isEmpty() ? "" : etStudentNumber.getText().toString().trim();
                                 String studentName = etStudentName.getText().toString().trim().isEmpty() ? "" : etStudentName.getText().toString().trim();
                                 double fromGPA = 0;
-                                double toGPA = 0;
+                                double toGPA = 10;
                                 try {
                                     fromGPA = etFromGPA.getText().toString().trim().isEmpty() ? 0 : Double.parseDouble(etFromGPA.getText().toString().trim());
                                     toGPA = etToGPA.getText().toString().trim().isEmpty() ? 10 : Double.parseDouble(etToGPA.getText().toString().trim());
                                 } catch (Exception e) {
                                     Toast.makeText(view.getContext(), "Please enter valid GPA", Toast.LENGTH_SHORT).show();
                                 }
+                                searchView.setQuery("", false);
+                                searchView.clearFocus();
                                 searchMultiple(studentNumber, studentName, fromGPA, toGPA);
                             }
                         })
