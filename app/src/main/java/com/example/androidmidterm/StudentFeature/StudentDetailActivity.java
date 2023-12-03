@@ -157,7 +157,7 @@ public class StudentDetailActivity extends AppCompatActivity {
                                             || Integer.parseInt(etIssuedYear.getText().toString()) > 2023
                                             || Integer.parseInt(etExpiredDay.getText().toString()) > 31
                                             || Integer.parseInt(etExpiredMonth.getText().toString()) > 12
-                                            || Integer.parseInt(etExpiredYear.getText().toString()) > 2023) {
+                                            || Integer.parseInt(etExpiredYear.getText().toString()) > 3000) {
                                         Toast.makeText(this, "Invalid date!", Toast.LENGTH_SHORT).show();
                                         Toast.makeText(this, "Please fill all the fields and retry!", Toast.LENGTH_SHORT).show();
                                         return;
